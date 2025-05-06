@@ -7,12 +7,14 @@ import HowItWorks from './component/HowITWork'
 import FeaturesSection from './component/FeacturePage'
 import TestimonialsSection from './component/TestimonialSection'
 import CTASection from './component/CallToAction'
+import Navbar from './component/Navbar'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
+    <Navbar/>
     <HeroSection/>
     <HowItWorks/>
     <FeaturesSection/>
