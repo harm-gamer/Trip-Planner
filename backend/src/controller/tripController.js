@@ -2,7 +2,7 @@ import { calculateTripPlan } from '../services/googleMapServices.js';
 
 export const planTrip = async (req, res) => {
   const { origin, destination } = req.body;
-
+    console.log(req.body);
   try {
     const tripPlan = await calculateTripPlan(origin, destination);
     res.status(200).json(tripPlan);
