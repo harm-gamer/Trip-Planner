@@ -1,35 +1,73 @@
-//Todo: write a function to get distance and time between two locations using google maps api
-import axios from 'axios';
-export const calculateTripPlan = async (origin,destination) =>{
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY2;
+const axios = require('axios');
 
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const BASE_URL = 'https://maps.googleapis.com/maps/api';
+
+/**
+ * Gets distance and duration from Distance Matrix API
+ * @param {string} origin - The starting location
+ * @param {string} destination - The destination location
+ * @returns {Promise<{ distance: string, duration: string, distanceValue: number, durationValue: number }>}
+ */
+const getDistanceAndDuration = async (origin, destination) => {
   try {
-    const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+    const response = await axios.get(`${BASE_URL}/distancematrix/json`, {
       params: {
         origins: origin,
         destinations: destination,
-        key: apiKey,
-        units: 'metric',
+        key: GOOGLE_MAPS_API_KEY,
       },
     });
 
-    const data = response.data;
-    // console.log(response);
-    console.log(data);
+    const element = response.data.rows[0].elements[0];
 
-    if (data.status !== 'OK') throw new Error('Failed to fetch distance matrix.');
-
-    const result = data.rows[0].elements[0];
-
-    if (result.status !== 'OK') throw new Error('Invalid origin/destination.');
+    if (element.status !== 'OK') {
+      throw new Error('Invalid location or no route found');
+    }
 
     return {
-      distance: result.distance.text,  // e.g., "432 km"
-      duration: result.duration.text,  // e.g., "5 hours 32 mins"
+      distance: element.distance.text,
+      duration: element.duration.text,
+      distanceValue: element.distance.value, // in meters
+      durationValue: element.duration.value, // in seconds
     };
-
-  } catch (error) {
-    console.error('Google Maps API error:', error.message);
-    throw error;
+  } catch (err) {
+    console.error('Error in getDistanceAndDuration:', err.message);
+    throw err;
   }
-}
+};
+
+/**
+ * Gets detailed route information from Directions API
+ * @param {string} origin
+ * @param {string} destination
+ * @param {string[]} [waypoints]
+ * @returns {Promise<object>} route details
+ */
+const getRouteDetails = async (origin, destination, waypoints = []) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/directions/json`, {
+      params: {
+        origin,
+        destination,
+        key: GOOGLE_MAPS_API_KEY,
+        waypoints: waypoints.join('|'),
+        optimizeWaypoints: true,
+      },
+    });
+
+    if (response.data.status !== 'OK') {
+      throw new Error('Failed to fetch route directions');
+    }
+
+    return response.data.routes[0];
+  } catch (err) {
+    console.error('Error in getRouteDetails:', err.message);
+    throw err;
+  }
+};
+
+module.exports = {
+  getDistanceAndDuration,
+  getRouteDetails,
+};
