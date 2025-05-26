@@ -3,12 +3,7 @@ const axios = require('axios');
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const BASE_URL = 'https://maps.googleapis.com/maps/api';
 
-/**
- * Gets distance and duration from Distance Matrix API
- * @param {string} origin - The starting location
- * @param {string} destination - The destination location
- * @returns {Promise<{ distance: string, duration: string, distanceValue: number, durationValue: number }>}
- */
+
 const getDistanceAndDuration = async (origin, destination) => {
   try {
     const response = await axios.get(`${BASE_URL}/distancematrix/json`, {
@@ -37,13 +32,7 @@ const getDistanceAndDuration = async (origin, destination) => {
   }
 };
 
-/**
- * Gets detailed route information from Directions API
- * @param {string} origin
- * @param {string} destination
- * @param {string[]} [waypoints]
- * @returns {Promise<object>} route details
- */
+
 const getRouteDetails = async (origin, destination, waypoints = []) => {
   try {
     const response = await axios.get(`${BASE_URL}/directions/json`, {
